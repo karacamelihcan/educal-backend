@@ -130,6 +130,7 @@ app.UseSwagger();
 
 app.UseSwaggerUI(options => {
     options.SwaggerEndpoint("/swagger/V1/swagger.json","Main API Documantation of Educal API");
+    options.RoutePrefix = string.Empty;
 });
 app.UseHttpsRedirection();
 
