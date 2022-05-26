@@ -7,6 +7,7 @@ namespace Educal.Contract.Requests.ManagerRequests
 {
     public class UpdateManagerRequest
     {
+        public Guid UserId { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
         public string Email { get; set; }

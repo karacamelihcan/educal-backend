@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Educal.Contract.Requests.RegistrarRequests;
 using Educal.Contract.Responses;
@@ -19,6 +21,7 @@ namespace Educal.Services.Services.RegistrarServices
         private readonly IRegistrarRepository _RegistrarService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<RegistrarService> _logger;
+        private readonly SHA256 _passwordHasher = new SHA256CryptoServiceProvider();
 
         public RegistrarService(IRegistrarRepository RegistrarService, IUnitOfWork unitOfWork, ILogger<RegistrarService> logger)
         {
@@ -57,7 +60,7 @@ namespace Educal.Services.Services.RegistrarServices
                     Name = request.Name,
                     Surname = request.Surname,
                     Email = request.Email,
-                    Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                    Password = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(request.Password))),
                 };
                 await _RegistrarService.AddAsync(user);
                 await _unitOfWork.CommitAsync();
@@ -144,18 +147,15 @@ namespace Educal.Services.Services.RegistrarServices
                 {
                     return ApiResponse<RegistrarDto>.Fail("Password section cannot be null", 400);
                 }
-                var checkedUser = _RegistrarService.GetByEmail(request.Email);
-                if(checkedUser != null){
-                    return ApiResponse<RegistrarDto>.Fail("This email is used by a different user",400);
+                var user = await _RegistrarService.GetByGuidAsync(request.UserId);
+                
+                if(user == null){
+                    return ApiResponse<RegistrarDto>.Fail("There is no such a user",404);
                 }
-
-                var user = new Registrar(){
-                    UserRole = Enumeration.Enums.EnumUserRole.Registrar,
-                    Name = request.Name,
-                    Surname = request.Surname,
-                    Email = request.Email,
-                    Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                };
+                user.Name = request.Name;
+                user.Surname = request.Surname;
+                user.Email = request.Email;
+                user.Password = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(request.Password)));
                 _RegistrarService.Update(user);
                 await _unitOfWork.CommitAsync();
 

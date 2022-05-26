@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Educal.Contract.Requests.CustomerRequests;
 using Educal.Contract.Responses;
@@ -19,6 +21,7 @@ namespace Educal.Services.Services.CustomerServices
         private readonly ICustomerRepository _customerService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<CustomerService> _logger;
+        private readonly SHA256 _passwordHasher = new SHA256CryptoServiceProvider();
 
         public CustomerService(ICustomerRepository customerService, IUnitOfWork unitOfWork, ILogger<CustomerService> logger)
         {
@@ -57,7 +60,7 @@ namespace Educal.Services.Services.CustomerServices
                     Name = request.Name,
                     Surname = request.Surname,
                     Email = request.Email,
-                    Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                    Password = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(request.Password))),
                 };
                 await _customerService.AddAsync(user);
                 await _unitOfWork.CommitAsync();
@@ -144,18 +147,15 @@ namespace Educal.Services.Services.CustomerServices
                 {
                     return ApiResponse<CustomerDto>.Fail("Password section cannot be null", 400);
                 }
-                var checkedUser = _customerService.GetByEmail(request.Email);
-                if(checkedUser != null){
-                    return ApiResponse<CustomerDto>.Fail("This email is used by a different user",400);
+                var user = await _customerService.GetByGuidAsync(request.UserId);
+                
+                if(user == null){
+                    return ApiResponse<CustomerDto>.Fail("There is no such a user",404);
                 }
-
-                var user = new Customer(){
-                    UserRole = Enumeration.Enums.EnumUserRole.Customer,
-                    Name = request.Name,
-                    Surname = request.Surname,
-                    Email = request.Email,
-                    Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                };
+                user.Name = request.Name;
+                user.Surname = request.Surname;
+                user.Email = request.Email;
+                user.Password = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(request.Password)));
                 _customerService.Update(user);
                 await _unitOfWork.CommitAsync();
 

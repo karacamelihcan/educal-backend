@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Educal.Contract.Requests.ManagerRequests;
 using Educal.Contract.Responses;
@@ -19,6 +21,8 @@ namespace Educal.Services.Services.ManagerServices
         private readonly IManagerRepository _ManagerService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ManagerService> _logger;
+                
+        private readonly SHA256 _passwordHasher = new SHA256CryptoServiceProvider();
 
         public ManagerService(IManagerRepository ManagerService, IUnitOfWork unitOfWork, ILogger<ManagerService> logger)
         {
@@ -47,7 +51,7 @@ namespace Educal.Services.Services.ManagerServices
                 {
                     return ApiResponse<ManagerDto>.Fail("Password section cannot be null", 400);
                 }
-                var checkedUser = _ManagerService.GetByEmail(request.Email);
+                var checkedUser = await _ManagerService.GetByEmail(request.Email);
                 if(checkedUser != null){
                     return ApiResponse<ManagerDto>.Fail("This email is used by a different user",400);
                 }
@@ -57,8 +61,9 @@ namespace Educal.Services.Services.ManagerServices
                     Name = request.Name,
                     Surname = request.Surname,
                     Email = request.Email,
-                    Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                    Password = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(request.Password)))
                 };
+
                 await _ManagerService.AddAsync(user);
                 await _unitOfWork.CommitAsync();
 
@@ -144,18 +149,15 @@ namespace Educal.Services.Services.ManagerServices
                 {
                     return ApiResponse<ManagerDto>.Fail("Password section cannot be null", 400);
                 }
-                var checkedUser = _ManagerService.GetByEmail(request.Email);
-                if(checkedUser != null){
-                    return ApiResponse<ManagerDto>.Fail("This email is used by a different user",400);
+                var user = await _ManagerService.GetByGuidAsync(request.UserId);
+                
+                if(user == null){
+                    return ApiResponse<ManagerDto>.Fail("There is no such a user",404);
                 }
-
-                var user = new Manager(){
-                    UserRole = Enumeration.Enums.EnumUserRole.Manager,
-                    Name = request.Name,
-                    Surname = request.Surname,
-                    Email = request.Email,
-                    Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                };
+                user.Name = request.Name;
+                user.Surname = request.Surname;
+                user.Email = request.Email;
+                user.Password = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(request.Password)));
                 _ManagerService.Update(user);
                 await _unitOfWork.CommitAsync();
 
