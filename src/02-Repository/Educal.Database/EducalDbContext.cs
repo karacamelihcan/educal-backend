@@ -21,6 +21,8 @@ namespace Educal.Database
         public DbSet<Student> Students { get; set; }
         public DbSet<UserRefreshToken> RefreshTokens { get; set; }
         public DbSet<Lesson> Lessons { get; set; }
+        public DbSet<City> Cities { get; set; }
+        public DbSet<District> Districts { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
