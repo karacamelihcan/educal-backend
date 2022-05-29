@@ -3,6 +3,7 @@ using System;
 using Educal.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Educal.Database.Migrations
 {
     [DbContext(typeof(EducalDbContext))]
-    partial class EducalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220529204054_working-time")]
+    partial class workingtime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -358,20 +360,14 @@ namespace Educal.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<TimeSpan>("BookedEndTime")
-                        .HasColumnType("interval");
-
-                    b.Property<TimeSpan>("BookedStartTime")
-                        .HasColumnType("interval");
+                    b.Property<TimeOnly>("BookedEndTime")
+                        .HasColumnType("time without time zone");
 
                     b.Property<int>("Day")
                         .HasColumnType("integer");
 
-                    b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("interval");
-
-                    b.Property<Guid>("Guid")
-                        .HasColumnType("uuid");
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time without time zone");
 
                     b.Property<int?>("InstructorId")
                         .HasColumnType("integer");
@@ -379,8 +375,8 @@ namespace Educal.Database.Migrations
                     b.Property<bool>("IsBooked")
                         .HasColumnType("boolean");
 
-                    b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("interval");
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time without time zone");
 
                     b.HasKey("Id");
 

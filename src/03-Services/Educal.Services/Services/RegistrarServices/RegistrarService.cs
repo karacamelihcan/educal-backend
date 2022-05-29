@@ -50,7 +50,7 @@ namespace Educal.Services.Services.RegistrarServices
                 {
                     return ApiResponse<RegistrarDto>.Fail("Password section cannot be null", 400);
                 }
-                var checkedUser = _RegistrarService.GetByEmail(request.Email);
+                var checkedUser = await _RegistrarService.GetByEmail(request.Email);
                 if(checkedUser != null){
                     return ApiResponse<RegistrarDto>.Fail("This email is used by a different user",400);
                 }

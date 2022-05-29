@@ -18,6 +18,8 @@ namespace Educal.Database.Configurations
             builder.Property(inst => inst.Surname).IsRequired();
             builder.Property(inst => inst.Email).IsRequired();
             builder.HasIndex(inst => inst.Email).IsUnique();
+
+            builder.HasMany(inst => inst.WorkingTimes).WithOne(time => time.Instructor);
         }
     }
 }
