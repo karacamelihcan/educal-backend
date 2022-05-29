@@ -23,6 +23,7 @@ namespace Educal.Database
         public DbSet<Lesson> Lessons { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<District> Districts { get; set; }
+        public DbSet<WorkingTime> WorkingTimes { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

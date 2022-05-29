@@ -50,7 +50,7 @@ namespace Educal.Services.Services.StudentServices
                 {
                     return ApiResponse<StudentDto>.Fail("Password section cannot be null", 400);
                 }
-                var checkedUser = _StudentService.GetByEmail(request.Email);
+                var checkedUser = await _StudentService.GetByEmail(request.Email);
                 if(checkedUser != null){
                     return ApiResponse<StudentDto>.Fail("This email is used by a different user",400);
                 }

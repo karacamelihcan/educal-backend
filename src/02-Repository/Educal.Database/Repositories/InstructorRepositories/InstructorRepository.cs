@@ -41,18 +41,22 @@ namespace Educal.Database.Repositories.InstructorRepositories
 
         public async Task<Instructor> GetByEmail(string email)
         {
-            return await _context.Instructors.Where(x => x.Email == email && x.IsDeleted == false).FirstOrDefaultAsync();
+            return await _context.Instructors.Where(x => x.Email == email && x.IsDeleted == false)
+                                             .Include(x => x.WorkingTimes)
+                                             .FirstOrDefaultAsync();
         }
 
         public override async Task<Instructor> GetByGuidAsync(Guid Id)
         {
             return await _context.Instructors.Where(c => c.Guid == Id && c.IsDeleted == false)
-                                           .FirstOrDefaultAsync();
+                                             .Include(x => x.WorkingTimes)   
+                                             .FirstOrDefaultAsync();
         }
 
         public async override Task<Instructor> GetByIdAsync(int id)
         {
             return await _context.Instructors.Where(c => c.Id == id && c.IsDeleted == false)
+                                             .Include(x => x.WorkingTimes)
                                            .FirstOrDefaultAsync();
         }
 
