@@ -17,6 +17,7 @@ namespace Educal.Services.MappingProfile
             CreateMap<Manager,ManagerDto>().ReverseMap();
             CreateMap<Registrar,RegistrarDto>().ReverseMap();
             CreateMap<Student,StudentDto>().ReverseMap();
+            CreateMap<Lesson,LessonDto>().ReverseMap();
         }
     }
 }

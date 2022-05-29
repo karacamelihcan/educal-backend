@@ -20,6 +20,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using Microsoft.OpenApi.Models;
+using Educal.Database.Repositories.LessonRepositories;
+using Educal.Services.Services.LessonServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +38,7 @@ builder.Services.AddScoped<IManagerRepository, ManagerRepository>();
 builder.Services.AddScoped<IRegistrarRepository, RegistrarRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
+builder.Services.AddScoped<ILessonRepository, LessonRepository>();
 
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IInstructorService, InstructorService>();
@@ -44,6 +47,7 @@ builder.Services.AddScoped<IRegistrarService, RegistrarService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ILessonService,LessonService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
