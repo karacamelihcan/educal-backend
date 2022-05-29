@@ -3,6 +3,7 @@ using System;
 using Educal.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Educal.Database.Migrations
 {
     [DbContext(typeof(EducalDbContext))]
-    partial class EducalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220529182045_district-update")]
+    partial class districtupdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -106,6 +108,9 @@ namespace Educal.Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CityId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Districts");
                 });
