@@ -92,27 +92,32 @@ builder.Services.AddSwaggerGen(options =>
         Title = "Educal API",
         Description = "Main API Documantation of Educal API"
     });
-    options.AddSecurityDefinition("Bearer,", new OpenApiSecurityScheme
+
+    var securityScheme = new OpenApiSecurityScheme(){
+        Description = "Please insert your JWT Token into field",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    };
+    var securityRequirement = new OpenApiSecurityRequirement
+    {
         {
-            Description = "Please insert your JWT Token into field",
-            Name = "Authorization",
-            Type = SecuritySchemeType.ApiKey,
-            In = ParameterLocation.Header,
-            Scheme = "Bearer",
-            BearerFormat = "JWT"
-        });
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement{
-        {
-            new OpenApiSecurityScheme{
-                Reference = new OpenApiReference{
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
+                    Id = "bearerAuth"
                 }
             },
-            new string[]{}
+            new string[] {}
         }
-    });
+    };
 
+    options.AddSecurityDefinition("bearerAuth",securityScheme);
+    options.AddSecurityRequirement(securityRequirement);
     
 });
 

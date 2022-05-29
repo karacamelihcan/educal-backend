@@ -17,11 +17,13 @@ using Educal.Services.Services.TokenServices;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace Educal.Services.Services.AuthenticationServices
 {
     public class AuthenticationService : IAuthenticationService
     {
+        private ILogger<AuthenticationService> _logger;
         private readonly ICustomerRepository _customerRepo;
         private readonly IInstructorRepository _instructorRepo;
         private readonly IManagerRepository _managerRepo;
@@ -46,157 +48,227 @@ namespace Educal.Services.Services.AuthenticationServices
 
         public async Task<ApiResponse<TokenDto>> CreateTokenAsyncCustomer(LoginRequest login)
         {
-            if(login.Email == null || login.Password ==null){
-                return ApiResponse<TokenDto>.Fail("Email and password cannot be null",400);
+            try
+            {
+                if (login.Email == null || login.Password == null)
+                {
+                    return ApiResponse<TokenDto>.Fail("Email and password cannot be null", 400);
+                }
+                var user = await _customerRepo.GetByEmail(login.Email);
+                if (user == null)
+                {
+                    return ApiResponse<TokenDto>.Fail("Email or password is wrong", 400);
+                }
+                var hashResult = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(login.Password)));
+                if (hashResult != user.Password)
+                {
+                    return ApiResponse<TokenDto>.Fail("Email or password is wrong", 400);
+                }
+                var token = _tokenService.CreateToken(user);
+                var userRefreshToken = await _tokenRepo.Where(x => x.UserId == user.Guid);
+                var RefreshToken = await userRefreshToken.SingleOrDefaultAsync();
+                if (RefreshToken == null)
+                {
+                    await _tokenRepo.AddAsync(new UserRefreshToken
+                    {
+                        UserId = user.Guid,
+                        Token = token.RefreshToken,
+                        Expiration = token.RefreshTokenExpiration
+                    });
+                }
+                else
+                {
+                    RefreshToken.Token = token.RefreshToken;
+                    RefreshToken.Expiration = token.RefreshTokenExpiration;
+                }
+                await _unitOfWork.CommitAsync();
+                return ApiResponse<TokenDto>.Success(token, 200);
             }
-            var user = await _customerRepo.GetByEmail(login.Email);
-            if(user == null){
-                return ApiResponse<TokenDto>.Fail("Email or password is wrong",400);
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<TokenDto>.Fail(ex.Message, 500);
             }
-            var hashResult = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(login.Password)));
-            if(hashResult != user.Password){
-                return ApiResponse<TokenDto>.Fail("Email or password is wrong",400);
-            }
-            var token = _tokenService.CreateToken(user);
-            var userRefreshToken = await _tokenRepo.Where(x=>x.UserId == user.Guid);
-            var RefreshToken = await userRefreshToken.SingleOrDefaultAsync();
-            if(RefreshToken == null){
-                await _tokenRepo.AddAsync(new UserRefreshToken{
-                    UserId = user.Guid,
-                    Token = token.RefreshToken,
-                    Expiration = token.RefreshTokenExpiration
-                });
-            }
-            else{
-                RefreshToken.Token = token.RefreshToken;
-                RefreshToken.Expiration = token.RefreshTokenExpiration;
-            }
-            await _unitOfWork.CommitAsync();
-            return ApiResponse<TokenDto>.Success(token,200);
         }
 
         public async Task<ApiResponse<TokenDto>> CreateTokenAsyncInstructor(LoginRequest login)
         {
-            if(login.Email == null || login.Password ==null){
-                return ApiResponse<TokenDto>.Fail("Email and password cannot be null",400);
+            try
+            {
+                if (login.Email == null || login.Password == null)
+                {
+                    return ApiResponse<TokenDto>.Fail("Email and password cannot be null", 400);
+                }
+                var user = await _instructorRepo.GetByEmail(login.Email);
+                if (user == null)
+                {
+                    return ApiResponse<TokenDto>.Fail("Email or password is wrong", 400);
+                }
+                var hashResult = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(login.Password)));
+                if (hashResult != user.Password)
+                {
+                    return ApiResponse<TokenDto>.Fail("Email or password is wrong", 400);
+                }
+                var token = _tokenService.CreateToken(user);
+                var userRefreshToken = await _tokenRepo.Where(x => x.UserId == user.Guid);
+                var RefreshToken = await userRefreshToken.SingleOrDefaultAsync();
+                if (RefreshToken == null)
+                {
+                    await _tokenRepo.AddAsync(new UserRefreshToken
+                    {
+                        UserId = user.Guid,
+                        Token = token.RefreshToken,
+                        Expiration = token.RefreshTokenExpiration
+                    });
+                }
+                else
+                {
+                    RefreshToken.Token = token.RefreshToken;
+                    RefreshToken.Expiration = token.RefreshTokenExpiration;
+                }
+                await _unitOfWork.CommitAsync();
+                return ApiResponse<TokenDto>.Success(token, 200);
             }
-            var user = await _instructorRepo.GetByEmail(login.Email);
-            if(user == null){
-                return ApiResponse<TokenDto>.Fail("Email or password is wrong",400);
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<TokenDto>.Fail(ex.Message, 500);
             }
-            var hashResult = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(login.Password)));
-            if(hashResult != user.Password){
-                return ApiResponse<TokenDto>.Fail("Email or password is wrong",400);
-            }
-            var token = _tokenService.CreateToken(user);
-            var userRefreshToken = await _tokenRepo.Where(x=>x.UserId == user.Guid);
-            var RefreshToken = await userRefreshToken.SingleOrDefaultAsync();
-            if(RefreshToken == null){
-                await _tokenRepo.AddAsync(new UserRefreshToken{
-                    UserId = user.Guid,
-                    Token = token.RefreshToken,
-                    Expiration = token.RefreshTokenExpiration
-                });
-            }
-            else{
-                RefreshToken.Token = token.RefreshToken;
-                RefreshToken.Expiration = token.RefreshTokenExpiration;
-            }
-            await _unitOfWork.CommitAsync();
-            return ApiResponse<TokenDto>.Success(token,200);
         }
 
         public async Task<ApiResponse<TokenDto>> CreateTokenAsyncManager(LoginRequest login)
         {
-            if(login.Email == null || login.Password ==null){
-                return ApiResponse<TokenDto>.Fail("Email and password cannot be null",400);
+            try
+            {
+                if (login.Email == null || login.Password == null)
+                {
+                    return ApiResponse<TokenDto>.Fail("Email and password cannot be null", 400);
+                }
+                var user = await _managerRepo.GetByEmail(login.Email);
+                if (user == null)
+                {
+                    return ApiResponse<TokenDto>.Fail("Email or password is wrong", 400);
+                }
+                var hashResult = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(login.Password)));
+                if (hashResult != user.Password)
+                {
+                    return ApiResponse<TokenDto>.Fail("Email or password is wrong", 400);
+                }
+                var token = _tokenService.CreateToken(user);
+                var userRefreshToken = await _tokenRepo.Where(x => x.UserId == user.Guid);
+                var RefreshToken = await userRefreshToken.SingleOrDefaultAsync();
+                if (RefreshToken == null)
+                {
+                    await _tokenRepo.AddAsync(new UserRefreshToken
+                    {
+                        UserId = user.Guid,
+                        Token = token.RefreshToken,
+                        Expiration = token.RefreshTokenExpiration
+                    });
+                }
+                else
+                {
+                    RefreshToken.Token = token.RefreshToken;
+                    RefreshToken.Expiration = token.RefreshTokenExpiration;
+                }
+                await _unitOfWork.CommitAsync();
+                return ApiResponse<TokenDto>.Success(token, 200);
             }
-            var user = await _managerRepo.GetByEmail(login.Email);
-            if(user == null){
-                return ApiResponse<TokenDto>.Fail("Email or password is wrong",400);
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<TokenDto>.Fail(ex.Message, 500);
             }
-            var hashResult = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(login.Password)));
-            if(hashResult != user.Password){
-                return ApiResponse<TokenDto>.Fail("Email or password is wrong",400);
-            }
-            var token = _tokenService.CreateToken(user);
-            var userRefreshToken = await _tokenRepo.Where(x=>x.UserId == user.Guid);
-            var RefreshToken = await userRefreshToken.SingleOrDefaultAsync();
-            if(RefreshToken == null){
-                await _tokenRepo.AddAsync(new UserRefreshToken{
-                    UserId = user.Guid,
-                    Token = token.RefreshToken,
-                    Expiration = token.RefreshTokenExpiration
-                });
-            }
-            else{
-                RefreshToken.Token = token.RefreshToken;
-                RefreshToken.Expiration = token.RefreshTokenExpiration;
-            }
-            await _unitOfWork.CommitAsync();
-            return ApiResponse<TokenDto>.Success(token,200);
         }
 
         public async Task<ApiResponse<TokenDto>> CreateTokenAsyncRegistrar(LoginRequest login)
         {
-            if(login.Email == null || login.Password ==null){
-                return ApiResponse<TokenDto>.Fail("Email and password cannot be null",400);
+            try
+            {
+                if (login.Email == null || login.Password == null)
+                {
+                    return ApiResponse<TokenDto>.Fail("Email and password cannot be null", 400);
+                }
+                var user = await _registrarRepo.GetByEmail(login.Email);
+                if (user == null)
+                {
+                    return ApiResponse<TokenDto>.Fail("Email or password is wrong", 400);
+                }
+                var hashResult = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(login.Password)));
+                if (hashResult != user.Password)
+                {
+                    return ApiResponse<TokenDto>.Fail("Email or password is wrong", 400);
+                }
+                var token = _tokenService.CreateToken(user);
+                var userRefreshToken = await _tokenRepo.Where(x => x.UserId == user.Guid);
+                var RefreshToken = await userRefreshToken.SingleOrDefaultAsync();
+                if (RefreshToken == null)
+                {
+                    await _tokenRepo.AddAsync(new UserRefreshToken
+                    {
+                        UserId = user.Guid,
+                        Token = token.RefreshToken,
+                        Expiration = token.RefreshTokenExpiration
+                    });
+                }
+                else
+                {
+                    RefreshToken.Token = token.RefreshToken;
+                    RefreshToken.Expiration = token.RefreshTokenExpiration;
+                }
+                await _unitOfWork.CommitAsync();
+                return ApiResponse<TokenDto>.Success(token, 200);
             }
-            var user = await _registrarRepo.GetByEmail(login.Email);
-            if(user == null){
-                return ApiResponse<TokenDto>.Fail("Email or password is wrong",400);
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<TokenDto>.Fail(ex.Message, 500);
             }
-            var hashResult = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(login.Password)));
-            if(hashResult != user.Password){
-                return ApiResponse<TokenDto>.Fail("Email or password is wrong",400);
-            }
-            var token = _tokenService.CreateToken(user);
-            var userRefreshToken = await _tokenRepo.Where(x=>x.UserId == user.Guid);
-            var RefreshToken = await userRefreshToken.SingleOrDefaultAsync();
-            if(RefreshToken == null){
-                await _tokenRepo.AddAsync(new UserRefreshToken{
-                    UserId = user.Guid,
-                    Token = token.RefreshToken,
-                    Expiration = token.RefreshTokenExpiration
-                });
-            }
-            else{
-                RefreshToken.Token = token.RefreshToken;
-                RefreshToken.Expiration = token.RefreshTokenExpiration;
-            }
-            await _unitOfWork.CommitAsync();
-            return ApiResponse<TokenDto>.Success(token,200);
         }
 
         public async Task<ApiResponse<TokenDto>> CreateTokenAsyncStudent(LoginRequest login)
         {
-            if(login.Email == null || login.Password ==null){
-                return ApiResponse<TokenDto>.Fail("Email and password cannot be null",400);
+            try
+            {
+                if (login.Email == null || login.Password == null)
+                {
+                    return ApiResponse<TokenDto>.Fail("Email and password cannot be null", 400);
+                }
+                var user = await _studentRepo.GetByEmail(login.Email);
+                if (user == null)
+                {
+                    return ApiResponse<TokenDto>.Fail("Email or password is wrong", 400);
+                }
+                var hashResult = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(login.Password)));
+                if (hashResult != user.Password)
+                {
+                    return ApiResponse<TokenDto>.Fail("Email or password is wrong", 400);
+                }
+                var token = _tokenService.CreateToken(user);
+                var userRefreshToken = await _tokenRepo.Where(x => x.UserId == user.Guid);
+                var RefreshToken = await userRefreshToken.SingleOrDefaultAsync();
+                if (RefreshToken == null)
+                {
+                    await _tokenRepo.AddAsync(new UserRefreshToken
+                    {
+                        UserId = user.Guid,
+                        Token = token.RefreshToken,
+                        Expiration = token.RefreshTokenExpiration
+                    });
+                }
+                else
+                {
+                    RefreshToken.Token = token.RefreshToken;
+                    RefreshToken.Expiration = token.RefreshTokenExpiration;
+                }
+                await _unitOfWork.CommitAsync();
+                return ApiResponse<TokenDto>.Success(token, 200);
             }
-            var user = await _studentRepo.GetByEmail(login.Email);
-            if(user == null){
-                return ApiResponse<TokenDto>.Fail("Email or password is wrong",400);
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<TokenDto>.Fail(ex.Message, 500);
             }
-            var hashResult = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(login.Password)));
-            if(hashResult != user.Password){
-                return ApiResponse<TokenDto>.Fail("Email or password is wrong",400);
-            }
-            var token = _tokenService.CreateToken(user);
-            var userRefreshToken = await _tokenRepo.Where(x=>x.UserId == user.Guid);
-            var RefreshToken = await userRefreshToken.SingleOrDefaultAsync();
-            if(RefreshToken == null){
-                await _tokenRepo.AddAsync(new UserRefreshToken{
-                    UserId = user.Guid,
-                    Token = token.RefreshToken,
-                    Expiration = token.RefreshTokenExpiration
-                });
-            }
-            else{
-                RefreshToken.Token = token.RefreshToken;
-                RefreshToken.Expiration = token.RefreshTokenExpiration;
-            }
-            await _unitOfWork.CommitAsync();
-            return ApiResponse<TokenDto>.Success(token,200);
         }
 
         public Task<ApiResponse<TokenDto>> CreateTokenByRefreshToken(string refreshToken)
