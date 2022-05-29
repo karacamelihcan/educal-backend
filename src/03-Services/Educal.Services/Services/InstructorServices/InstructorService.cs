@@ -77,6 +77,47 @@ namespace Educal.Services.Services.InstructorServices
 
         }
 
+        public async Task<ApiResponse<InstructorDto>> AddWorkingTime(AddWorkingTimeRequest request)
+        {
+            try
+            {
+                if(request.InstructorID == Guid.Empty){
+                    return ApiResponse<InstructorDto>.Fail("Instructor Id cannot be null",400);
+                }
+                var startTime = new TimeSpan(request.StartTimeHour,request.StartTimeMinute,0);
+                var endTime = new TimeSpan(request.EndTimeHour,request.EndTimeMinute,0);
+                if(endTime == startTime){
+                    return ApiResponse<InstructorDto>.Fail("Please enter a valid working time",400);
+                }
+                var instructor = await _InstructorService.GetByGuidAsync(request.InstructorID);
+                if(instructor == null){
+                    return ApiResponse<InstructorDto>.Fail("There is no such a instructor",404);
+                }
+                var time = new WorkingTime(){
+                    Day = request.Day,
+                    StartTime = startTime,
+                    EndTime = endTime
+                };
+
+                var check = instructor.WorkingTimes.Where(time => time.Day == request.Day && (time.StartTime == startTime || time.EndTime == endTime || (time.StartTime < startTime && startTime<time.EndTime)|| (time.StartTime < endTime && endTime<time.EndTime))).Any();
+                if(check){
+                    return ApiResponse<InstructorDto>.Fail("There is a record in this working hour range.",400);
+                }
+                instructor.WorkingTimes.Add(time);
+                _InstructorService.Update(instructor);
+                await _unitOfWork.CommitAsync();
+                var result = ObjectMapper.Mapper.Map<InstructorDto>(instructor);
+                
+                return ApiResponse<InstructorDto>.Success(result,200);
+
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<InstructorDto>.Fail(ex.Message,500);
+            }
+        }
+
         public Task<ApiResponse<IEnumerable<InstructorDto>>> GetAllAsync()
         {
             throw new NotImplementedException();

@@ -10,11 +10,12 @@ namespace Educal.Core.Models
     public class WorkingTime
     {
         public int Id { get; set; }
+        public Guid Guid { get; set; } = Guid.NewGuid();
         public EnumDays Day { get; set; }
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
-        public TimeOnly BookedStartTime { get; set; }
-        public TimeOnly BookedEndTime { get; set; }
+        public TimeSpan StartTime { get; set; }
+        public TimeSpan EndTime { get; set; }
+        public TimeSpan BookedStartTime { get; set; }
+        public TimeSpan BookedEndTime { get; set; }
         public bool IsBooked { get; set; } = false;
 
         [JsonIgnore]

@@ -46,5 +46,12 @@ namespace Educal.API.Controllers
             var result = await _InstructorService.Remove(Id);
             return ActionResultInstance(result);
         }
+
+        [Authorize]
+        [HttpPost("WorkingTime")]
+        public async Task<IActionResult> AddWorkingTime(AddWorkingTimeRequest request){
+            var result = await _InstructorService.AddWorkingTime(request);
+            return ActionResultInstance(result);
+        }
     }
 }
