@@ -12,6 +12,7 @@ using Educal.Core.Models;
 using Educal.Database.Repositories.InstructorRepositories;
 using Educal.Database.UnitOfWorks;
 using Educal.Services.MappingProfile;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Educal.Services.Services.InstructorServices
@@ -286,6 +287,34 @@ namespace Educal.Services.Services.InstructorServices
             {
                 _logger.LogError(ex.Message);
                 return ApiResponse<NoDataDto>.Fail(ex.Message, 500);
+            }
+        }
+
+        public async Task<ApiResponse<IEnumerable<InstructorDto>>> GetInstructorsByTimeQuery(GetInstructorByTimeQueryRequest request)
+        {
+            try
+            {
+                var instructors = await _InstructorService.GetInstructorsAsQueryable();
+
+                var startTime = new TimeSpan(request.StartTimeHour,request.StartTimeMinute,0);
+                var endTime = new TimeSpan(request.EndTimeHour,request.EndTimeMinute,0);
+                var available = instructors.Where(inst => inst.WorkingTimes
+                                                              .Where(time => time.StartTime <= startTime && time.EndTime >= endTime && time.Day == request.Day).Any()
+                                            ).AsNoTracking().ToList();
+                if(!available.Any()){
+                    return ApiResponse<IEnumerable<InstructorDto>>.Fail("There is no available record",404);
+                }
+                var result = new List<InstructorDto>();
+                foreach (var user in available)
+                {
+                    result.Add(ObjectMapper.Mapper.Map<InstructorDto>(user));
+                }
+                return ApiResponse<IEnumerable<InstructorDto>>.Success(result,200);                                         
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<IEnumerable<InstructorDto>>.Fail(ex.Message,500);
             }
         }
     }
