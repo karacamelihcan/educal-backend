@@ -3,6 +3,7 @@ using System;
 using Educal.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Educal.Database.Migrations
 {
     [DbContext(typeof(EducalDbContext))]
-    partial class EducalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220530173226_classroom")]
+    partial class classroom
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,9 +61,6 @@ namespace Educal.Database.Migrations
                     b.Property<int>("Day")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<TimeSpan>("EndTime")
                         .HasColumnType("interval");
 
@@ -77,16 +76,10 @@ namespace Educal.Database.Migrations
                     b.Property<int?>("LessonId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("interval");
 
                     b.Property<int>("TotalHour")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TotalWeek")
                         .HasColumnType("integer");
 
                     b.Property<int>("WeeklyHour")

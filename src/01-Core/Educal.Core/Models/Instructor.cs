@@ -9,5 +9,7 @@ namespace Educal.Core.Models
     {
         public List<WorkingTime> WorkingTimes { get; set; }
         public List<Lesson> Lessons { get; set; }
+        public List<Classroom> Classrooms { get; set; }
+        
     }
 }

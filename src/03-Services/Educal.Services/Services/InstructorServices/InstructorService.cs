@@ -96,21 +96,30 @@ namespace Educal.Services.Services.InstructorServices
 
                 var startTime = new TimeSpan(request.StartTimeHour,request.StartTimeMinute,0);
                 var endTime = new TimeSpan(request.EndTimeHour,request.EndTimeMinute,0);
-                if(endTime == startTime){
+                if(endTime <= startTime){
                     return ApiResponse<InstructorDto>.Fail("Please enter a valid working time",400);
                 }
                 
-                var time = new WorkingTime(){
+                var difference = (endTime-startTime).Hours;
+
+                for (int i = 1; i <= difference; i++)
+                {
+                    endTime = TimeSpan.FromHours(startTime.Hours + 1);
+                    var time = new WorkingTime(){
                     Day = request.Day,
                     StartTime = startTime,
                     EndTime = endTime
-                };
-
-                var check = instructor.WorkingTimes.Where(time => time.Day == request.Day && (time.StartTime == startTime || time.EndTime == endTime || (time.StartTime < startTime && startTime<time.EndTime)|| (time.StartTime < endTime && endTime<time.EndTime))).Any();
-                if(check){
-                    return ApiResponse<InstructorDto>.Fail("There is a record in this working hour range.",400);
+                    };
+                    var check = instructor.WorkingTimes.Where(time => time.Day == request.Day && (time.StartTime == startTime || time.EndTime == endTime || (time.StartTime < startTime && startTime<time.EndTime)|| (time.StartTime < endTime && endTime<time.EndTime))).Any();
+                    if(check){
+                        return ApiResponse<InstructorDto>.Fail("There is a record in this working hour range.",400);
+                    }
+                    instructor.WorkingTimes.Add(time);
+                    startTime += TimeSpan.FromHours(1); 
                 }
-                instructor.WorkingTimes.Add(time);
+                
+
+                
                 _InstructorService.Update(instructor);
                 await _unitOfWork.CommitAsync();
                 var result = ObjectMapper.Mapper.Map<InstructorDto>(instructor);

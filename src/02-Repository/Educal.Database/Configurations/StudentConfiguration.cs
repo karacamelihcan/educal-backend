@@ -18,6 +18,7 @@ namespace Educal.Database.Configurations
             builder.Property(std => std.Surname).IsRequired();
             builder.Property(std => std.Email).IsRequired();
             builder.HasIndex(std => std.Email).IsUnique();
+            builder.HasOne(std => std.Classroom).WithMany(cls => cls.Students);
         }
     }
 }

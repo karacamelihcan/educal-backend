@@ -5,5 +5,6 @@ namespace Educal.Enumeration.Enums
         Dropped = 1,
         FreezedRegistiration = 2,
         Registered = 3,
+        NoRegistration = 4
     }
 }

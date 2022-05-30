@@ -24,6 +24,8 @@ using Educal.Database.Repositories.LessonRepositories;
 using Educal.Services.Services.LessonServices;
 using Educal.Database.Repositories.CityDistRepositories;
 using Educal.Services.Services.CityDistServices;
+using Educal.Database.Repositories.ClassroomRepositories;
+using Educal.Services.Services.ClassroomServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +44,7 @@ builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<ILessonRepository, LessonRepository>();
 builder.Services.AddScoped<ICityDistRepository, CityDistRepository>();
+builder.Services.AddScoped<IClassroomRepository,ClassroomRepository>();
 
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IInstructorService, InstructorService>();
@@ -52,6 +55,7 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ILessonService,LessonService>();
 builder.Services.AddScoped<ICityDistService, CityDistService>();
+builder.Services.AddScoped<IClassroomService,ClassroomService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -91,7 +95,9 @@ builder.Services.AddAuthentication(options =>
 
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "AllowOrigin",
