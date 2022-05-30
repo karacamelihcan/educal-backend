@@ -53,5 +53,11 @@ namespace Educal.API.Controllers
             var result = await _InstructorService.AddWorkingTime(request);
             return ActionResultInstance(result);
         }
+        [Authorize]
+        [HttpPut("WorkingTime")]
+        public async Task<IActionResult> UpdateWorkingTime(UpdateWorkingTimeRequest request){
+            var result = await _InstructorService.UpdateWorkingTime(request);
+            return ActionResultInstance(result);
+        }
     }
 }
