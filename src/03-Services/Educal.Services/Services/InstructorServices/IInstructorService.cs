@@ -20,5 +20,6 @@ namespace Educal.Services.Services.InstructorServices
         Task<ApiResponse<InstructorDto>> AddWorkingTime(AddWorkingTimeRequest request);
         Task<ApiResponse<InstructorDto>> UpdateWorkingTime(UpdateWorkingTimeRequest request);
         Task<ApiResponse<NoDataDto>> DeleteWorkingTime(DeleteWorkingTimeRequest request);
+        Task<ApiResponse<IEnumerable<InstructorDto>>> GetInstructorsByTimeQuery(GetInstructorByTimeQueryRequest request);
     }
 }

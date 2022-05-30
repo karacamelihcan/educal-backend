@@ -60,6 +60,15 @@ namespace Educal.Database.Repositories.InstructorRepositories
                                            .FirstOrDefaultAsync();
         }
 
+        public async Task<IQueryable<Instructor>> GetInstructorsAsQueryable()
+        {
+            return _context.Instructors.Where(inst => inst.IsDeleted == false)
+                                       .Include(inst => inst.WorkingTimes)
+                                       .AsQueryable();
+                                       
+
+        }
+
         public override void Update(Instructor entity)
         {
             _context.Instructors.Update(entity);

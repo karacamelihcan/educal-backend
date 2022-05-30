@@ -65,5 +65,12 @@ namespace Educal.API.Controllers
             var result = await _InstructorService.DeleteWorkingTime(request);
             return ActionResultInstance(result);
         }
+
+        [Authorize]
+        [HttpGet("SearchByTime")]
+        public async Task<IActionResult> GetInstructorByTimeQuery([FromQuery] GetInstructorByTimeQueryRequest request){
+            var result = await _InstructorService.GetInstructorsByTimeQuery(request);
+            return ActionResultInstance(result);
+        }
     }
 }

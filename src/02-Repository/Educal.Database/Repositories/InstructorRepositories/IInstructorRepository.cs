@@ -10,5 +10,6 @@ namespace Educal.Database.Repositories.InstructorRepositories
     public interface IInstructorRepository : IBaseRepository<Instructor>
     {
         Task<Instructor> GetByEmail(string email);
+        Task<IQueryable<Instructor>> GetInstructorsAsQueryable();
     }
 }
