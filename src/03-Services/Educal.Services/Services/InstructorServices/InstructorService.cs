@@ -84,15 +84,18 @@ namespace Educal.Services.Services.InstructorServices
                 if(request.InstructorID == Guid.Empty){
                     return ApiResponse<InstructorDto>.Fail("Instructor Id cannot be null",400);
                 }
+
+                var instructor = await _InstructorService.GetByGuidAsync(request.InstructorID);
+                if(instructor == null){
+                    return ApiResponse<InstructorDto>.Fail("There is no such a instructor",404);
+                }
+
                 var startTime = new TimeSpan(request.StartTimeHour,request.StartTimeMinute,0);
                 var endTime = new TimeSpan(request.EndTimeHour,request.EndTimeMinute,0);
                 if(endTime == startTime){
                     return ApiResponse<InstructorDto>.Fail("Please enter a valid working time",400);
                 }
-                var instructor = await _InstructorService.GetByGuidAsync(request.InstructorID);
-                if(instructor == null){
-                    return ApiResponse<InstructorDto>.Fail("There is no such a instructor",404);
-                }
+                
                 var time = new WorkingTime(){
                     Day = request.Day,
                     StartTime = startTime,
@@ -104,6 +107,52 @@ namespace Educal.Services.Services.InstructorServices
                     return ApiResponse<InstructorDto>.Fail("There is a record in this working hour range.",400);
                 }
                 instructor.WorkingTimes.Add(time);
+                _InstructorService.Update(instructor);
+                await _unitOfWork.CommitAsync();
+                var result = ObjectMapper.Mapper.Map<InstructorDto>(instructor);
+                
+                return ApiResponse<InstructorDto>.Success(result,200);
+
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<InstructorDto>.Fail(ex.Message,500);
+            }
+        }
+
+        public async Task<ApiResponse<InstructorDto>> UpdateWorkingTime(UpdateWorkingTimeRequest request)
+        {
+            try
+            {
+                if(request.InstructorID == Guid.Empty){
+                    return ApiResponse<InstructorDto>.Fail("Instructor Id cannot be null",400);
+                }
+                var instructor = await _InstructorService.GetByGuidAsync(request.InstructorID);
+                if(instructor == null){
+                    return ApiResponse<InstructorDto>.Fail("There is no such a instructor",404);
+                }
+                var time = instructor.WorkingTimes.Where(time => time.Guid == request.TimeGuid).FirstOrDefault();
+                if(time == null){
+                    return ApiResponse<InstructorDto>.Fail("This user doesnt have such a record",404);
+                }
+                var startTime = new TimeSpan(request.StartTimeHour,request.StartTimeMinute,0);
+                var endTime = new TimeSpan(request.EndTimeHour,request.EndTimeMinute,0);
+                if(endTime == startTime){
+                    return ApiResponse<InstructorDto>.Fail("Please enter a valid working time",400);
+                }
+                
+                time.Day = request.Day;
+                time.StartTime = startTime;
+                time.EndTime = endTime;
+
+                var check = instructor.WorkingTimes.Where(time => time.Day == request.Day && (time.StartTime == startTime || time.EndTime == endTime || (time.StartTime < startTime && startTime<time.EndTime)|| (time.StartTime < endTime && endTime<time.EndTime))).FirstOrDefault();
+                if(check != null){
+                    if(check.Guid != request.TimeGuid){
+                        return ApiResponse<InstructorDto>.Fail("There is a record in this working hour range.",400);
+                    }
+                    
+                }
                 _InstructorService.Update(instructor);
                 await _unitOfWork.CommitAsync();
                 var result = ObjectMapper.Mapper.Map<InstructorDto>(instructor);
@@ -213,6 +262,31 @@ namespace Educal.Services.Services.InstructorServices
         public Task<ApiResponse<IQueryable<InstructorDto>>> Where(Expression<Func<Instructor, bool>> predicate)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<ApiResponse<NoDataDto>> DeleteWorkingTime(DeleteWorkingTimeRequest request)
+        {
+            try
+            {
+                var instructor = await _InstructorService.GetByGuidAsync(request.InstructorID);
+                if(instructor == null){
+                    return ApiResponse<NoDataDto>.Fail("There is no such a Instructor",404);
+                }
+                var time = instructor.WorkingTimes.Where(time => time.Guid == request.TimeGuid).FirstOrDefault();
+                if(time == null){
+                    return ApiResponse<NoDataDto>.Fail("There is no such a time record",404);
+                }
+                instructor.WorkingTimes.Remove(time);
+                _InstructorService.Update(instructor);
+                await _unitOfWork.CommitAsync();
+
+                return ApiResponse<NoDataDto>.Success(200);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<NoDataDto>.Fail(ex.Message, 500);
+            }
         }
     }
 }
