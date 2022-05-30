@@ -20,6 +20,7 @@ namespace Educal.Database.Configurations
             builder.HasIndex(inst => inst.Email).IsUnique();
 
             builder.HasMany(inst => inst.WorkingTimes).WithOne(time => time.Instructor);
+            builder.HasMany(inst => inst.Lessons).WithMany(less => less.Instructors);
         }
     }
 }

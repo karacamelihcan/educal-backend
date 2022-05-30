@@ -26,7 +26,7 @@ namespace Educal.API.Controllers
             return ActionResultInstance(result);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet("{Id}")]
         public async Task<IActionResult> Get(Guid Id){
             var result = await _InstructorService.GetByIdAsync(Id);
@@ -70,6 +70,20 @@ namespace Educal.API.Controllers
         [HttpGet("SearchByTime")]
         public async Task<IActionResult> GetInstructorByTimeQuery([FromQuery] GetInstructorByTimeQueryRequest request){
             var result = await _InstructorService.GetInstructorsByTimeQuery(request);
+            return ActionResultInstance(result);
+        }
+
+        [Authorize]
+        [HttpPost("Lesson")]
+        public async Task<IActionResult> AddLessonToInstructor(AddLessonRequest request){
+            var result = await _InstructorService.AddLessonToInstructor(request);
+            return ActionResultInstance(result);
+        }
+
+        [Authorize]
+        [HttpDelete("Lesson")]
+        public async Task<IActionResult> RemoeLessonFromInstructor(DeleteLessonRequest request){
+            var result = await _InstructorService.RemoveLessonFromInstructor(request);
             return ActionResultInstance(result);
         }
     }

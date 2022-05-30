@@ -62,6 +62,7 @@ builder.Services.AddDbContext<EducalDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("EducalDb"), sqlOptions =>
     {
         sqlOptions.MigrationsAssembly(Assembly.GetAssembly(typeof(EducalDbContext)).GetName().Name);
+        sqlOptions.EnableRetryOnFailure(5,TimeSpan.FromSeconds(10),null);
     });
 });
 

@@ -14,5 +14,6 @@ namespace Educal.Core.Dtos
         public string Surname { get; set; }
         public string Email { get; set; }
         public List<WorkingTimeDto> WorkingTimes { get; set; }
+        public List<LessonDto> Lessons { get; set; }
     }
 }
