@@ -263,5 +263,30 @@ namespace Educal.Services.Services.InstructorServices
         {
             throw new NotImplementedException();
         }
+
+        public async Task<ApiResponse<NoDataDto>> DeleteWorkingTime(DeleteWorkingTimeRequest request)
+        {
+            try
+            {
+                var instructor = await _InstructorService.GetByGuidAsync(request.InstructorID);
+                if(instructor == null){
+                    return ApiResponse<NoDataDto>.Fail("There is no such a Instructor",404);
+                }
+                var time = instructor.WorkingTimes.Where(time => time.Guid == request.TimeGuid).FirstOrDefault();
+                if(time == null){
+                    return ApiResponse<NoDataDto>.Fail("There is no such a time record",404);
+                }
+                instructor.WorkingTimes.Remove(time);
+                _InstructorService.Update(instructor);
+                await _unitOfWork.CommitAsync();
+
+                return ApiResponse<NoDataDto>.Success(200);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<NoDataDto>.Fail(ex.Message, 500);
+            }
+        }
     }
 }

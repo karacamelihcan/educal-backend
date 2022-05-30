@@ -59,5 +59,11 @@ namespace Educal.API.Controllers
             var result = await _InstructorService.UpdateWorkingTime(request);
             return ActionResultInstance(result);
         }
+        [Authorize]
+        [HttpDelete("WorkingTime")]
+        public async Task<IActionResult> DeleteWorkingTime(DeleteWorkingTimeRequest request){
+            var result = await _InstructorService.DeleteWorkingTime(request);
+            return ActionResultInstance(result);
+        }
     }
 }
