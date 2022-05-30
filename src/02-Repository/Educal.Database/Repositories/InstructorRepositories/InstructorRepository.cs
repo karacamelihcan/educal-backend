@@ -36,20 +36,25 @@ namespace Educal.Database.Repositories.InstructorRepositories
 
         public async override Task<IEnumerable<Instructor>> GetAll()
         {
-            return await _context.Instructors.AsNoTracking().ToListAsync();
+            return await _context.Instructors.AsNoTracking()
+                                             .Where(x => x.IsDeleted == false)
+                                             .Include(x => x.WorkingTimes)
+                                             .Include(inst => inst.Lessons).ToListAsync();
         }
 
         public async Task<Instructor> GetByEmail(string email)
         {
             return await _context.Instructors.Where(x => x.Email == email && x.IsDeleted == false)
                                              .Include(x => x.WorkingTimes)
+                                             .Include(inst => inst.Lessons)
                                              .FirstOrDefaultAsync();
         }
 
         public override async Task<Instructor> GetByGuidAsync(Guid Id)
         {
             return await _context.Instructors.Where(c => c.Guid == Id && c.IsDeleted == false)
-                                             .Include(x => x.WorkingTimes)   
+                                             .Include(x => x.WorkingTimes)
+                                             .Include(inst => inst.Lessons)   
                                              .FirstOrDefaultAsync();
         }
 
@@ -57,13 +62,15 @@ namespace Educal.Database.Repositories.InstructorRepositories
         {
             return await _context.Instructors.Where(c => c.Id == id && c.IsDeleted == false)
                                              .Include(x => x.WorkingTimes)
-                                           .FirstOrDefaultAsync();
+                                             .Include(inst => inst.Lessons)
+                                             .FirstOrDefaultAsync();
         }
 
         public async Task<IQueryable<Instructor>> GetInstructorsAsQueryable()
         {
             return _context.Instructors.Where(inst => inst.IsDeleted == false)
                                        .Include(inst => inst.WorkingTimes)
+                                       .Include(inst => inst.Lessons)
                                        .AsQueryable();
                                        
 

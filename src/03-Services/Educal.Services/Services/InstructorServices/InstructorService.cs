@@ -10,6 +10,7 @@ using Educal.Contract.Responses;
 using Educal.Core.Dtos;
 using Educal.Core.Models;
 using Educal.Database.Repositories.InstructorRepositories;
+using Educal.Database.Repositories.LessonRepositories;
 using Educal.Database.UnitOfWorks;
 using Educal.Services.MappingProfile;
 using Microsoft.EntityFrameworkCore;
@@ -23,12 +24,14 @@ namespace Educal.Services.Services.InstructorServices
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<InstructorService> _logger;
         private readonly SHA256 _passwordHasher = new SHA256CryptoServiceProvider();
+        private readonly ILessonRepository _lessonRepo;
 
-        public InstructorService(IInstructorRepository InstructorService, IUnitOfWork unitOfWork, ILogger<InstructorService> logger)
+        public InstructorService(IInstructorRepository InstructorService, IUnitOfWork unitOfWork, ILogger<InstructorService> logger, ILessonRepository lessonRepo)
         {
             _InstructorService = InstructorService;
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _lessonRepo = lessonRepo;
         }
 
         public async Task<ApiResponse<InstructorDto>> AddAsync(CreateInstructorRequest request)
@@ -315,6 +318,65 @@ namespace Educal.Services.Services.InstructorServices
             {
                 _logger.LogError(ex.Message);
                 return ApiResponse<IEnumerable<InstructorDto>>.Fail(ex.Message,500);
+            }
+        }
+
+        public async Task<ApiResponse<InstructorDto>> AddLessonToInstructor(AddLessonRequest request)
+        {
+            try
+            {
+                var instructor = await _InstructorService.GetByGuidAsync(request.InstructorId);
+                if(instructor == null){
+                    return ApiResponse<InstructorDto>.Fail("There is no such a instructor",404);
+                }
+                var lesson = await _lessonRepo.GetByGuidAsync(request.LessonId);
+                if(lesson == null){
+                    return ApiResponse<InstructorDto>.Fail("There is no such a lesson record",404);
+                }
+                var check = instructor.Lessons.Where(less => less.Guid  == request.LessonId).Any();
+                if(check){
+                    return ApiResponse<InstructorDto>.Fail("This lesson already added to releated user",400);
+                }
+                instructor.Lessons.Add(lesson);
+                await _unitOfWork.CommitAsync();
+
+                var result = ObjectMapper.Mapper.Map<InstructorDto>(instructor);
+                return ApiResponse<InstructorDto>.Success(result,200);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<InstructorDto>.Fail(ex.Message,500);
+                
+            }
+        }
+
+        public async Task<ApiResponse<InstructorDto>> RemoveLessonFromInstructor(DeleteLessonRequest request)
+        {
+            try
+            {
+                var instructor = await _InstructorService.GetByGuidAsync(request.InstructorId);
+                if(instructor == null){
+                    return ApiResponse<InstructorDto>.Fail("There is no such a instructor",404);
+                }
+                var lesson = await _lessonRepo.GetByGuidAsync(request.LessonId);
+                if(lesson == null){
+                    return ApiResponse<InstructorDto>.Fail("There is no such a lesson record",404);
+                }
+                var check = instructor.Lessons.Where(less => less.Guid  == request.LessonId).Any();
+                if(!check){
+                    return ApiResponse<InstructorDto>.Fail("There is no such a record",404);
+                }
+                instructor.Lessons.Remove(lesson);
+                await _unitOfWork.CommitAsync();
+                var result = ObjectMapper.Mapper.Map<InstructorDto>(instructor);
+                return ApiResponse<InstructorDto>.Success(result,200);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<InstructorDto>.Fail(ex.Message,500);
+                
             }
         }
     }

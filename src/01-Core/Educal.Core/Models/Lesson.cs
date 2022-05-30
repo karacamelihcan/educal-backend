@@ -11,5 +11,6 @@ namespace Educal.Core.Models
         public Guid Guid { get; set; } = Guid.NewGuid();
         public string Name { get; set; }
         public bool IsDeleted { get; set; } = false;
+        public List<Instructor> Instructors { get; set; }
     }
 }
