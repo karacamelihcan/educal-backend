@@ -9,7 +9,7 @@ namespace Educal.Core.Dtos
     public class ClassroomDto
     {
         public Guid Guid { get; set; } = Guid.NewGuid();
-        public InstructorDto Instructor { get; set; }
+        public InstructorClassDto Instructor { get; set; }
         public List<StudentDto> Students { get; set; }
         public LessonDto Lesson { get; set; }
         public int Capacity { get; set; }

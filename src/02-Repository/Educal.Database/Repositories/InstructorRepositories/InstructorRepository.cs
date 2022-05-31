@@ -39,7 +39,9 @@ namespace Educal.Database.Repositories.InstructorRepositories
             return await _context.Instructors.AsNoTracking()
                                              .Where(x => x.IsDeleted == false)
                                              .Include(x => x.WorkingTimes)
-                                             .Include(inst => inst.Lessons).ToListAsync();
+                                             .Include(inst => inst.Lessons)
+                                             .Include(inst => inst.Classrooms)
+                                             .ToListAsync();
         }
 
         public async Task<Instructor> GetByEmail(string email)
@@ -54,7 +56,8 @@ namespace Educal.Database.Repositories.InstructorRepositories
         {
             return await _context.Instructors.Where(c => c.Guid == Id && c.IsDeleted == false)
                                              .Include(x => x.WorkingTimes)
-                                             .Include(inst => inst.Lessons)   
+                                             .Include(inst => inst.Lessons)
+                                             .Include(inst => inst.Classrooms)   
                                              .FirstOrDefaultAsync();
         }
 
@@ -63,6 +66,7 @@ namespace Educal.Database.Repositories.InstructorRepositories
             return await _context.Instructors.Where(c => c.Id == id && c.IsDeleted == false)
                                              .Include(x => x.WorkingTimes)
                                              .Include(inst => inst.Lessons)
+                                             .Include(inst => inst.Classrooms)
                                              .FirstOrDefaultAsync();
         }
 
@@ -71,6 +75,7 @@ namespace Educal.Database.Repositories.InstructorRepositories
             return _context.Instructors.Where(inst => inst.IsDeleted == false)
                                        .Include(inst => inst.WorkingTimes)
                                        .Include(inst => inst.Lessons)
+                                       .Include(inst => inst.Classrooms)
                                        .AsQueryable();
                                        
 

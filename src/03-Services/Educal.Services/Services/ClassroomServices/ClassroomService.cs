@@ -77,7 +77,7 @@ namespace Educal.Services.Services.ClassroomServices
                     return ApiResponse<ClassroomDto>.Fail("This instructor is not suitable for this lesson",400);
                 }
                 startTime = new TimeSpan(request.StartTimeHour,0,0);
-                var startDate = new DateTime(request.StartDate.Year,request.StartDate.Month,request.StartDate.Day,startTime.Hours,0,0).ToUniversalTime();
+                var startDate = new DateTime(request.StartDate.Year,request.StartDate.Month,request.StartDate.Day,startTime.Hours,startTime.Minutes,startTime.Seconds).ToUniversalTime().AddHours(3);
                 var classrom = new Classroom(){
                     Instructor = instructor,
                     Lesson = lesson,
@@ -91,13 +91,13 @@ namespace Educal.Services.Services.ClassroomServices
                     StartTime = startTime,
                     EndTime = endTime
                 };
-                instructor.Classrooms.Add(classrom);
+
+                await _classroomRepo.AddAsync(classrom);
+                
                 foreach (var item in selectedTimes)
                 {
                     item.IsBooked = true;
                 }
-                
-                await _classroomRepo.AddAsync(classrom);
                 await _unitOfWork.CommitAsync();
                 var result = ObjectMapper.Mapper.Map<ClassroomDto>(classrom);
 
