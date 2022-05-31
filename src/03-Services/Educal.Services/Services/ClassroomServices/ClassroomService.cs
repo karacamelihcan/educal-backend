@@ -112,9 +112,25 @@ namespace Educal.Services.Services.ClassroomServices
             }
         }
 
-        public Task<ApiResponse<ClassroomDto>> GetByIdAsync(Guid Id)
+        public async Task<ApiResponse<ClassroomDto>> GetByIdAsync(Guid Id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if(Id == Guid.Empty){
+                    return ApiResponse<ClassroomDto>.Fail("Please enter a valid ID",400);
+                }
+                var classroom = await _classroomRepo.GetByGuidAsync(Id);
+                if(classroom == null){
+                    return ApiResponse<ClassroomDto>.Fail("There is no such a group",404);
+                }
+                var result = ObjectMapper.Mapper.Map<ClassroomDto>(classroom);
+                return ApiResponse<ClassroomDto>.Success(result,200);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<ClassroomDto>.Fail(ex.Message,500);
+            }
         }
 
         public Task<ApiResponse<NoDataDto>> Remove(Guid Id)
