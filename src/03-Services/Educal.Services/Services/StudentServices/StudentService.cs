@@ -50,6 +50,9 @@ namespace Educal.Services.Services.StudentServices
                 {
                     return ApiResponse<StudentDto>.Fail("Password section cannot be null", 400);
                 }
+                if(request.Phone == null){
+                    return ApiResponse<StudentDto>.Fail("Phone section cannot be null",400);
+                }
                 var checkedUser = await _StudentService.GetByEmail(request.Email);
                 if(checkedUser != null){
                     return ApiResponse<StudentDto>.Fail("This email is used by a different user",400);
@@ -61,6 +64,7 @@ namespace Educal.Services.Services.StudentServices
                     Surname = request.Surname,
                     Email = request.Email,
                     Password = Convert.ToBase64String(_passwordHasher.ComputeHash(Encoding.UTF8.GetBytes(request.Password))),
+                    Phone = request.Phone
                 };
                 await _StudentService.AddAsync(user);
                 await _unitOfWork.CommitAsync();

@@ -41,19 +41,24 @@ namespace Educal.Database.Repositories.StudentRepositories
 
         public async Task<Student> GetByEmail(string email)
         {
-            return await _context.Students.Where(x => x.Email == email && x.IsDeleted == false).FirstOrDefaultAsync();
+            return await _context.Students.Where(x => x.Email == email && x.IsDeleted == false)
+                                          .FirstOrDefaultAsync();
         }
 
         public override async Task<Student> GetByGuidAsync(Guid Id)
         {
             return await _context.Students.Where(c => c.Guid == Id && c.IsDeleted == false)
-                                           .FirstOrDefaultAsync();
+                                          .Include(std=> std.Classroom)
+                                          .Include(std=> std.Classroom.Instructor)
+                                          .Include(std=> std.Classroom.Lesson)
+                                          .FirstOrDefaultAsync();
         }
 
         public async override Task<Student> GetByIdAsync(int id)
         {
             return await _context.Students.Where(c => c.Id == id && c.IsDeleted == false)
-                                           .FirstOrDefaultAsync();
+                                          .Include(std=> std.Classroom)
+                                          .FirstOrDefaultAsync();
         }
 
         public override void Update(Student entity)

@@ -21,6 +21,7 @@ namespace Educal.Database.Configurations
 
             builder.HasMany(inst => inst.WorkingTimes).WithOne(time => time.Instructor);
             builder.HasMany(inst => inst.Lessons).WithMany(less => less.Instructors);
+            builder.HasMany(inst => inst.Classrooms).WithOne(cls => cls.Instructor);
         }
     }
 }

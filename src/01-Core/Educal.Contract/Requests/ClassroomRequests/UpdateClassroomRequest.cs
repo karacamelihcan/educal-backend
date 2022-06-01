@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Educal.Enumeration.Enums;
 
-namespace Educal.Contract.Requests.InstructorRequests
+namespace Educal.Contract.Requests.ClassroomRequests
 {
-    public class UpdateWorkingTimeRequest
+    public class UpdateClassroomRequest
     {
-        public Guid InstructorID { get; set; }
-        public Guid TimeGuid { get; set; }
+        public Guid LessonId { get; set; }
+        public int Capacity { get; set; }
         public EnumDays Day { get; set; }
         public int StartTimeHour { get; set; }
         public int EndTimeHour { get; set; }
