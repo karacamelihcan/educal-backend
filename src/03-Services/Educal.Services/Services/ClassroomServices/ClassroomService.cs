@@ -143,6 +143,71 @@ namespace Educal.Services.Services.ClassroomServices
             throw new NotImplementedException();
         }
 
+        public async Task<ApiResponse<ClassroomDto>> UpdateInstructor(UpdateClassInstructorRequest request)
+        {
+            try
+            {
+                var classroom = await _classroomRepo.GetByGuidAsync(request.ClassroomId);
+                if(classroom == null){
+                    return ApiResponse<ClassroomDto>.Fail("There is no such a classroom",404);
+                }
+                var oldInstructor = await _instructorRepo.GetByGuidAsync(classroom.Instructor.Guid);
+                if(oldInstructor == null){
+                    return ApiResponse<ClassroomDto>.Fail("There is no such instructor",404);
+                }
+                var newinstructor = await _instructorRepo.GetByGuidAsync(request.InstructorId);
+                if(newinstructor == null){
+                    return ApiResponse<ClassroomDto>.Fail("There is no such instructor",404);
+                }
+
+                var startTime = classroom.StartTime;
+                var endTime = classroom.EndTime;
+
+                var difference = (endTime-startTime).Hours;
+                var selectedTimes = new List<WorkingTime>();
+                var oldInstructorTime = new List<WorkingTime>();
+                for (int i = 1; i <= difference ; i++)
+                {
+                    endTime = TimeSpan.FromHours(startTime.Hours + 1);
+                    var time = newinstructor.WorkingTimes.Where(time => time.StartTime == startTime && time.EndTime == endTime && time.Day == classroom.Day && time.IsBooked == false).FirstOrDefault();
+                    var time2 = oldInstructor.WorkingTimes.Where(time => time.StartTime == startTime && time.EndTime == endTime && time.Day == classroom.Day && time.IsBooked == true).FirstOrDefault();
+                    if(time == null){
+                        return ApiResponse<ClassroomDto>.Fail("This intructer has not available time for this course",400);
+                    }
+                    selectedTimes.Add(time);
+                    oldInstructorTime.Add(time2);
+                    startTime += TimeSpan.FromHours(1);
+                }
+                if(!newinstructor.Lessons.Where(less => less.Guid == classroom.Lesson.Guid).Any()){
+                    return ApiResponse<ClassroomDto>.Fail("This intructer has not suitale for this lesson",400);
+                }
+                classroom.Instructor = newinstructor;
+                foreach (var item in selectedTimes  )
+                {
+                    item.IsBooked = true;
+                }
+                foreach (var item in oldInstructorTime)
+                {
+                    item.IsBooked = false;
+                }
+                oldInstructor.Classrooms.RemoveAll(cls => cls.Guid == classroom.Guid);
+                newinstructor.Classrooms.Add(classroom);
+                _instructorRepo.Update(oldInstructor);
+                _instructorRepo.Update(newinstructor);
+                _classroomRepo.Update(classroom);
+                await _unitOfWork.CommitAsync();
+
+                var result = ObjectMapper.Mapper.Map<ClassroomDto>(classroom);
+                return ApiResponse<ClassroomDto>.Success(result,200);
+
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<ClassroomDto>.Fail(ex.Message,500);
+            }
+        }
+
         public Task<ApiResponse<IQueryable<ClassroomDto>>> Where(Expression<Func<Classroom, bool>> predicate)
         {
             throw new NotImplementedException();

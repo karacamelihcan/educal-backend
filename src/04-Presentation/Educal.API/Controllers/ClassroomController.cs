@@ -41,6 +41,13 @@ namespace Educal.API.Controllers
         }
 
         [Authorize]
+        [HttpPut("Instructor")]
+        public async Task<IActionResult> UpdateInstructor(UpdateClassInstructorRequest request){
+            var result = await _ClassroomService.UpdateInstructor(request);
+            return ActionResultInstance(result);
+        }
+
+        [Authorize]
         [HttpDelete("{Id}")]
         public async Task<IActionResult> Delete(Guid Id){
             var result = await _ClassroomService.Remove(Id);

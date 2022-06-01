@@ -50,7 +50,6 @@ namespace Educal.Database.Repositories.ClassroomRepositories
                                             .Include(cls => cls.Instructor)
                                             .Include(cls => cls.Students)
                                             .Include(cls => cls.Lesson)
-                                            .AsNoTracking()
                                             .FirstOrDefaultAsync();
         }
 

@@ -16,6 +16,7 @@ namespace Educal.Services.Services.ClassroomServices
         Task<ApiResponse<IQueryable<ClassroomDto>>> Where(Expression<Func<Classroom,bool>> predicate);
         Task<ApiResponse<ClassroomDto>> AddAsync(CreateClassroomRequest request);
         Task<ApiResponse<NoDataDto>> Remove(Guid Id);
+        Task<ApiResponse<ClassroomDto>> UpdateInstructor(UpdateClassInstructorRequest request);
         Task<ApiResponse<ClassroomDto>> Update(UpdateClassroomRequest request);
     }
 }

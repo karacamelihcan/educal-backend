@@ -41,6 +41,7 @@ namespace Educal.Database.Repositories.InstructorRepositories
                                              .Include(x => x.WorkingTimes)
                                              .Include(inst => inst.Lessons)
                                              .Include(inst => inst.Classrooms)
+                                             .AsNoTracking()
                                              .ToListAsync();
         }
 

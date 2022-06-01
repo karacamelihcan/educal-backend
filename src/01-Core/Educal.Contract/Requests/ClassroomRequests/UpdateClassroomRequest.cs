@@ -8,7 +8,6 @@ namespace Educal.Contract.Requests.ClassroomRequests
 {
     public class UpdateClassroomRequest
     {
-        public Guid InstructorId { get; set; }
         public Guid LessonId { get; set; }
         public int Capacity { get; set; }
         public int TotalWeek { get; set; }
