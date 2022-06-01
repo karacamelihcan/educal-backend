@@ -10,11 +10,8 @@ namespace Educal.Contract.Requests.ClassroomRequests
     {
         public Guid LessonId { get; set; }
         public int Capacity { get; set; }
-        public int TotalWeek { get; set; }
         public EnumDays Day { get; set; }
         public int StartTimeHour { get; set; }
-        public int StartTimeMinute{ get; set; }
         public int EndTimeHour { get; set; }
-        public int EndTimeMinute{ get; set; }
     }
 }

@@ -208,9 +208,79 @@ namespace Educal.Services.Services.ClassroomServices
             }
         }
 
-        public Task<ApiResponse<ClassroomDto>> Update(UpdateClassroomRequest request)
+        public async Task<ApiResponse<ClassroomDto>> Update(UpdateClassroomRequest request)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var classroom = await _classroomRepo.GetByGuidAsync(request.LessonId);
+                if(classroom == null){
+                    return ApiResponse<ClassroomDto>.Fail("There is no such a classroom",404);
+                }
+                var instructor = classroom.Instructor;
+                if(request.Capacity < classroom.Students.Count()){
+                    return ApiResponse<ClassroomDto>.Fail("New capacity cannot be less than current student count.",400);
+                }
+
+                var startTime = new TimeSpan(request.StartTimeHour,0,0);
+                var endTime = new TimeSpan(request.EndTimeHour,0,0);
+                var difference = (endTime - startTime).Hours;
+                if(startTime > endTime){
+                    return ApiResponse<ClassroomDto>.Fail("Please enter valid start and end time ",400);
+                } 
+                var selectedTimes = new List<WorkingTime>();
+                for (int i = 1; i <= difference ; i++)
+                {
+                    endTime = TimeSpan.FromHours(startTime.Hours + 1);
+                    var time = instructor.WorkingTimes.Where(time => time.StartTime == startTime && time.EndTime == endTime && time.Day == request.Day && time.IsBooked == false).FirstOrDefault();
+                    if(time == null){
+                        return ApiResponse<ClassroomDto>.Fail("This intructer has not available time for this course",404);
+                    }
+                    selectedTimes.Add(time);
+                    startTime += TimeSpan.FromHours(1);
+                }
+                
+                var oldstartTime = classroom.StartTime;
+                var oldendTime = classroom.EndTime;
+                difference = (oldendTime - oldstartTime).Hours;
+                if(startTime > endTime){
+                    return ApiResponse<ClassroomDto>.Fail("Please enter valid start and end time ",400);
+                } 
+                var oldselectedTimes = new List<WorkingTime>();
+                for (int i = 1; i <= difference ; i++)
+                {
+                    oldendTime = TimeSpan.FromHours(oldstartTime.Hours + 1);
+                    var time = instructor.WorkingTimes.Where(time => time.StartTime == oldstartTime && time.EndTime == oldendTime && time.Day == request.Day && time.IsBooked == true).FirstOrDefault();
+                    if(time == null){
+                        return ApiResponse<ClassroomDto>.Fail("This intructer has not available time for this course",404);
+                    }
+                    oldselectedTimes.Add(time);
+                    oldstartTime += TimeSpan.FromHours(1);
+                }
+                foreach (var item in selectedTimes)
+                {
+                    item.IsBooked = true;
+                }
+                foreach (var item in oldselectedTimes)
+                {
+                    item.IsBooked = false;
+                }
+                classroom.Capacity = request.Capacity;
+                classroom.Day = request.Day;
+                classroom.StartTime = new TimeSpan(request.StartTimeHour,0,0);
+                classroom.EndTime = new TimeSpan(request.EndTimeHour,0,0);
+                _instructorRepo.Update(instructor);
+                _classroomRepo.Update(classroom);
+                await _unitOfWork.CommitAsync();
+
+                var result = ObjectMapper.Mapper.Map<ClassroomDto>(classroom);
+                return ApiResponse<ClassroomDto>.Success(result,200);
+
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<ClassroomDto>.Fail(ex.Message,500);
+            }
         }
 
         public async Task<ApiResponse<ClassroomDto>> UpdateInstructor(UpdateClassInstructorRequest request)

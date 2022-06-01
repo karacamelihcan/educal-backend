@@ -49,6 +49,7 @@ namespace Educal.Database.Repositories.ClassroomRepositories
             return await _context.Classrooms.Where(cls => cls.IsActive == true && cls.Guid == Id)
                                             .Include(cls => cls.Instructor)
                                             .Include(cls => cls.Students)
+                                            .Include(cls => cls.Instructor.WorkingTimes)
                                             .Include(cls => cls.Lesson)
                                             .FirstOrDefaultAsync();
         }
