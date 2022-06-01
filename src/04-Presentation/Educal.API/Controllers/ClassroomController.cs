@@ -53,5 +53,17 @@ namespace Educal.API.Controllers
             var result = await _ClassroomService.Remove(Id);
             return ActionResultInstance(result);
         }
+        [Authorize]
+        [HttpPost("Student")]
+        public async Task<IActionResult> AddStudentToClassroom(AddStudentToClassroomRequest request){
+            var result = await _ClassroomService.AddStudentToClassroom(request);
+            return ActionResultInstance(result);
+        }
+        [Authorize]
+        [HttpDelete("Student")]
+        public async Task<IActionResult> RemoveStudentFromClassroom(RemoveStudentFromClassroomRequest request){
+            var result = await _ClassroomService.RemoveStudentFromClassroom(request);
+            return ActionResultInstance(result);
+        }
     }
 }

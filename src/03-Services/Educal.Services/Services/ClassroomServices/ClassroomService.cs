@@ -112,6 +112,42 @@ namespace Educal.Services.Services.ClassroomServices
             }
         }
 
+        public async Task<ApiResponse<ClassroomDto>> AddStudentToClassroom(AddStudentToClassroomRequest request)
+        {
+            try
+            {
+                var classroom = await _classroomRepo.GetByGuidAsync(request.ClassroomId);
+                if(classroom == null){
+                    return ApiResponse<ClassroomDto>.Fail("There is no such a classroom",404);
+                }
+                var student = await _studentRepo.GetByGuidAsync(request.StudentID);
+                if(student == null){
+                    return ApiResponse<ClassroomDto>.Fail("There is no such instructor",404);
+                }
+                if(student.isHaveEnrolled){
+                    return ApiResponse<ClassroomDto>.Fail("A student can only enroll in one course at the same time.",400);
+                }
+                if(classroom.Capacity <= classroom.Students.Count()){
+                    return ApiResponse<ClassroomDto>.Fail("There are not enough places in this class.",400);
+                }
+                student.isHaveEnrolled = true;
+                student.StudentStatus = Enumeration.Enums.EnumStudentStatus.Registered;
+                student.Classroom = classroom;
+                classroom.Students.Add(student);
+
+                _classroomRepo.Update(classroom);
+                await _unitOfWork.CommitAsync();
+                var result = ObjectMapper.Mapper.Map<ClassroomDto>(classroom);
+                return ApiResponse<ClassroomDto>.Success(result,200);
+
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<ClassroomDto>.Fail(ex.Message,500);
+            }
+        }
+
         public async Task<ApiResponse<ClassroomDto>> GetByIdAsync(Guid Id)
         {
             try
@@ -136,6 +172,40 @@ namespace Educal.Services.Services.ClassroomServices
         public Task<ApiResponse<NoDataDto>> Remove(Guid Id)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<ApiResponse<ClassroomDto>> RemoveStudentFromClassroom(RemoveStudentFromClassroomRequest request)
+        {
+            try
+            {
+                var classroom = await _classroomRepo.GetByGuidAsync(request.ClassroomId);
+                if(classroom == null){
+                    return ApiResponse<ClassroomDto>.Fail("There is no such a classroom",404);
+                }
+                var student = await _studentRepo.GetByGuidAsync(request.StudentID);
+                if(student == null){
+                    return ApiResponse<ClassroomDto>.Fail("There is no such instructor",404);
+                }
+                if(!classroom.Students.Any(std => std.Guid == student.Guid)){
+                    return ApiResponse<ClassroomDto>.Fail("This student is not a member of this classroom",404);
+                }
+                
+                student.isHaveEnrolled = false;
+                student.StudentStatus = Enumeration.Enums.EnumStudentStatus.Dropped;
+                student.Classroom = null;
+                classroom.Students.RemoveAll(std => std.Guid == student.Guid);
+                
+                _classroomRepo.Update(classroom);
+                await _unitOfWork.CommitAsync();
+                var result = ObjectMapper.Mapper.Map<ClassroomDto>(classroom);
+                return ApiResponse<ClassroomDto>.Success(result,200);
+
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<ClassroomDto>.Fail(ex.Message,500);
+            }
         }
 
         public Task<ApiResponse<ClassroomDto>> Update(UpdateClassroomRequest request)

@@ -94,8 +94,8 @@ namespace Educal.Services.Services.InstructorServices
                     return ApiResponse<InstructorDto>.Fail("There is no such a instructor",404);
                 }
 
-                var startTime = new TimeSpan(request.StartTimeHour,request.StartTimeMinute,0);
-                var endTime = new TimeSpan(request.EndTimeHour,request.EndTimeMinute,0);
+                var startTime = new TimeSpan(request.StartTimeHour,0,0);
+                var endTime = new TimeSpan(request.EndTimeHour,0,0);
                 if(endTime <= startTime){
                     return ApiResponse<InstructorDto>.Fail("Please enter a valid working time",400);
                 }
@@ -149,8 +149,8 @@ namespace Educal.Services.Services.InstructorServices
                 if(time == null){
                     return ApiResponse<InstructorDto>.Fail("This user doesnt have such a record",404);
                 }
-                var startTime = new TimeSpan(request.StartTimeHour,request.StartTimeMinute,0);
-                var endTime = new TimeSpan(request.EndTimeHour,request.EndTimeMinute,0);
+                var startTime = new TimeSpan(request.StartTimeHour,0,0);
+                var endTime = new TimeSpan(request.EndTimeHour,0,0);
                 if(endTime == startTime){
                     return ApiResponse<InstructorDto>.Fail("Please enter a valid working time",400);
                 }

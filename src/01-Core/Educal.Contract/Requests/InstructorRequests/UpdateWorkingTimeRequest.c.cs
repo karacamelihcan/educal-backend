@@ -12,8 +12,6 @@ namespace Educal.Contract.Requests.InstructorRequests
         public Guid TimeGuid { get; set; }
         public EnumDays Day { get; set; }
         public int StartTimeHour { get; set; }
-        public int StartTimeMinute{ get; set; }
         public int EndTimeHour { get; set; }
-        public int EndTimeMinute { get; set; }
     }
 }

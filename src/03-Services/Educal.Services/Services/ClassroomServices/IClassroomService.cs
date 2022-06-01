@@ -17,6 +17,8 @@ namespace Educal.Services.Services.ClassroomServices
         Task<ApiResponse<ClassroomDto>> AddAsync(CreateClassroomRequest request);
         Task<ApiResponse<NoDataDto>> Remove(Guid Id);
         Task<ApiResponse<ClassroomDto>> UpdateInstructor(UpdateClassInstructorRequest request);
+        Task<ApiResponse<ClassroomDto>> AddStudentToClassroom(AddStudentToClassroomRequest request);
+        Task<ApiResponse<ClassroomDto>> RemoveStudentFromClassroom(RemoveStudentFromClassroomRequest request);
         Task<ApiResponse<ClassroomDto>> Update(UpdateClassroomRequest request);
     }
 }
