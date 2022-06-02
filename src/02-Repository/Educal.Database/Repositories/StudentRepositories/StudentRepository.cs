@@ -36,12 +36,19 @@ namespace Educal.Database.Repositories.StudentRepositories
 
         public async override Task<IEnumerable<Student>> GetAll()
         {
-            return await _context.Students.AsNoTracking().ToListAsync();
+            return await _context.Students.Where(c => c.IsDeleted == false)
+                                          .AsNoTracking()
+                                          .Include(std=> std.Classroom)
+                                          .Include(std=> std.Classroom.Instructor)
+                                          .Include(std=> std.Classroom.Lesson).ToListAsync();
         }
 
         public async Task<Student> GetByEmail(string email)
         {
             return await _context.Students.Where(x => x.Email == email && x.IsDeleted == false)
+                                           .Include(std=> std.Classroom)
+                                          .Include(std=> std.Classroom.Instructor)
+                                          .Include(std=> std.Classroom.Lesson)
                                           .FirstOrDefaultAsync();
         }
 

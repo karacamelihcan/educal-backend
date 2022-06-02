@@ -77,9 +77,52 @@ namespace Educal.Services.Services.RegistrarServices
 
         }
 
-        public Task<ApiResponse<IEnumerable<RegistrarDto>>> GetAllAsync()
+        public async Task<ApiResponse<List<RegistrarDto>>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var users = await _RegistrarService.GetAll();
+
+                if(users == null){
+                    return ApiResponse<List<RegistrarDto>>.Success(200);
+                }
+
+                var list = new List<RegistrarDto>();
+
+                foreach (var item in users)
+                {
+                    list.Add(ObjectMapper.Mapper.Map<RegistrarDto>(item));
+                }
+                var result = ObjectMapper.Mapper.Map<List<RegistrarDto>>(users);
+                return ApiResponse<List<RegistrarDto>>.Success(list,200);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<List<RegistrarDto>>.Success(200);
+            }
+        }
+
+        public async Task<ApiResponse<RegistrarDto>> GetByEmailAsync(string Email)
+        {
+            try
+            {
+                if(Email == null){
+                    return ApiResponse<RegistrarDto>.Fail("Email field cannot be null",400);
+                }
+                var user = await _RegistrarService.GetByEmail(Email);
+
+                if(user == null){
+                    return ApiResponse<RegistrarDto>.Fail("There is no such a user",404);
+                }
+                var result = ObjectMapper.Mapper.Map<RegistrarDto>(user);
+                return ApiResponse<RegistrarDto>.Success(result,200);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<RegistrarDto>.Fail(ex.Message, 500);
+            }
         }
 
         public async Task<ApiResponse<RegistrarDto>> GetByIdAsync(Guid Id)

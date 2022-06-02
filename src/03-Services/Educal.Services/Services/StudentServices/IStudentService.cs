@@ -17,5 +17,7 @@ namespace Educal.Services.Services.StudentServices
         Task<ApiResponse<StudentDto>> AddAsync(CreateStudentRequest request);
         Task<ApiResponse<NoDataDto>> Remove(Guid Id);
         Task<ApiResponse<StudentDto>> Update(UpdateStudentRequest request);
+        Task<ApiResponse<StudentDto>> GetByEmailAsync(string Email);
+        Task<ApiResponse<List<StudentDto>>> GetAllAsync();
     }
 }

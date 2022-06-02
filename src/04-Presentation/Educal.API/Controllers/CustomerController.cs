@@ -46,5 +46,19 @@ namespace Educal.API.Controllers
             var result = await _customerService.Remove(Id);
             return ActionResultInstance(result);
         }
+
+        [Authorize]
+        [HttpGet()]
+        public async Task<IActionResult> GetAll(){
+            var result = await _customerService.GetAllAsync();
+            return ActionResultInstance(result);
+        }
+
+        [Authorize]
+        [HttpGet("Email/{Email}")]
+        public async Task<IActionResult> GetByEmail(string Email){
+            var result = await _customerService.GetByEmailAsync(Email);
+            return ActionResultInstance(result);
+        }
     }
 }

@@ -36,7 +36,8 @@ namespace Educal.Database.Repositories.RegistrarRepositories
 
         public async override Task<IEnumerable<Registrar>> GetAll()
         {
-            return await _context.Registrars.AsNoTracking().ToListAsync();
+            return await _context.Registrars.Where(rgs => rgs.IsDeleted == false)
+                                            .AsNoTracking().ToListAsync();
         }
 
         public async Task<Registrar> GetByEmail(string email)

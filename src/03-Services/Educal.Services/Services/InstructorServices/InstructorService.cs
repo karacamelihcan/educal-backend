@@ -180,11 +180,6 @@ namespace Educal.Services.Services.InstructorServices
             }
         }
 
-        public Task<ApiResponse<IEnumerable<InstructorDto>>> GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<ApiResponse<InstructorDto>> GetByIdAsync(Guid Id)
         {
             try
@@ -386,6 +381,54 @@ namespace Educal.Services.Services.InstructorServices
                 _logger.LogError(ex.Message);
                 return ApiResponse<InstructorDto>.Fail(ex.Message,500);
                 
+            }
+        }
+
+        public async Task<ApiResponse<List<InstructorDto>>> GetAllAsync()
+        {
+            try
+            {
+                var users = await _InstructorService.GetAll();
+
+                if(users == null){
+                    return ApiResponse<List<InstructorDto>>.Success(200);
+                }
+
+                var list = new List<InstructorDto>();
+
+                foreach (var item in users)
+                {
+                    list.Add(ObjectMapper.Mapper.Map<InstructorDto>(item));
+                }
+                var result = ObjectMapper.Mapper.Map<List<InstructorDto>>(users);
+                return ApiResponse<List<InstructorDto>>.Success(list,200);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<List<InstructorDto>>.Success(200);
+            }
+        }
+
+        public async Task<ApiResponse<InstructorDto>> GetByEmailAsync(string Email)
+        {
+            try
+            {
+                if(Email == null){
+                    return ApiResponse<InstructorDto>.Fail("Email field cannot be null",400);
+                }
+                var user = await _InstructorService.GetByEmail(Email);
+
+                if(user == null){
+                    return ApiResponse<InstructorDto>.Fail("There is no such a user",404);
+                }
+                var result = ObjectMapper.Mapper.Map<InstructorDto>(user);
+                return ApiResponse<InstructorDto>.Success(result,200);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<InstructorDto>.Fail(ex.Message, 500);
             }
         }
     }

@@ -17,5 +17,7 @@ namespace Educal.Services.Services.CustomerServices
         Task<ApiResponse<CustomerDto>> AddAsync(CreateCustomerRequest request);
         Task<ApiResponse<NoDataDto>> Remove(Guid Id);
         Task<ApiResponse<CustomerDto>> Update(UpdateCustomerRequest request);
+        Task<ApiResponse<CustomerDto>> GetByEmailAsync(string Email);
+        Task<ApiResponse<List<CustomerDto>>> GetAllAsync();
     }
 }
