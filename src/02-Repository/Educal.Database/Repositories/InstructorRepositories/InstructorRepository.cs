@@ -50,6 +50,7 @@ namespace Educal.Database.Repositories.InstructorRepositories
             return await _context.Instructors.Where(x => x.Email == email && x.IsDeleted == false)
                                              .Include(x => x.WorkingTimes)
                                              .Include(inst => inst.Lessons)
+                                             .Include(inst => inst.Classrooms)
                                              .FirstOrDefaultAsync();
         }
 

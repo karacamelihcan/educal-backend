@@ -17,5 +17,7 @@ namespace Educal.Services.Services.ManagerServices
         Task<ApiResponse<ManagerDto>> AddAsync(CreateManagerRequest request);
         Task<ApiResponse<NoDataDto>> Remove(Guid Id);
         Task<ApiResponse<ManagerDto>> Update(UpdateManagerRequest request);
+        Task<ApiResponse<ManagerDto>> GetByEmailAsync(string Email);
+        Task<ApiResponse<List<ManagerDto>>> GetAllAsync();
     }
 }

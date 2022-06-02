@@ -36,7 +36,7 @@ namespace Educal.Database.Repositories.CustomerRepositories
 
         public async override Task<IEnumerable<Customer>> GetAll()
         {
-            return await _context.Customers.AsNoTracking().ToListAsync();
+            return await _context.Customers.Where(x => x.IsDeleted == false).ToListAsync();;
         }
 
         public async Task<Customer> GetByEmail(string email)

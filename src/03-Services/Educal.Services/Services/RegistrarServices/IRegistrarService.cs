@@ -17,5 +17,7 @@ namespace Educal.Services.Services.RegistrarServices
         Task<ApiResponse<RegistrarDto>> AddAsync(CreateRegistrarRequest request);
         Task<ApiResponse<NoDataDto>> Remove(Guid Id);
         Task<ApiResponse<RegistrarDto>> Update(UpdateRegistrarRequest request);
+        Task<ApiResponse<RegistrarDto>> GetByEmailAsync(string Email);
+        Task<ApiResponse<List<RegistrarDto>>> GetAllAsync();
     }
 }

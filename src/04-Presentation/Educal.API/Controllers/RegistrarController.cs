@@ -46,5 +46,18 @@ namespace Educal.API.Controllers
             var result = await _RegistrarService.Remove(Id);
             return ActionResultInstance(result);
         }
+        [Authorize]
+        [HttpGet()]
+        public async Task<IActionResult> GetAll(){
+            var result = await _RegistrarService.GetAllAsync();
+            return ActionResultInstance(result);
+        }
+
+        [Authorize]
+        [HttpGet("Email/{Email}")]
+        public async Task<IActionResult> GetByEmail(string Email){
+            var result = await _RegistrarService.GetByEmailAsync(Email);
+            return ActionResultInstance(result);
+        }
     }
 }

@@ -79,9 +79,52 @@ namespace Educal.Services.Services.ManagerServices
 
         }
 
-        public Task<ApiResponse<IEnumerable<ManagerDto>>> GetAllAsync()
+        public async Task<ApiResponse<List<ManagerDto>>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var users = await _ManagerService.GetAll();
+
+                if(users == null){
+                    return ApiResponse<List<ManagerDto>>.Success(200);
+                }
+
+                var list = new List<ManagerDto>();
+
+                foreach (var item in users)
+                {
+                    list.Add(ObjectMapper.Mapper.Map<ManagerDto>(item));
+                }
+                var result = ObjectMapper.Mapper.Map<List<ManagerDto>>(users);
+                return ApiResponse<List<ManagerDto>>.Success(list,200);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<List<ManagerDto>>.Success(200);
+            }
+        }
+
+        public async Task<ApiResponse<ManagerDto>> GetByEmailAsync(string Email)
+        {
+            try
+            {
+                if(Email == null){
+                    return ApiResponse<ManagerDto>.Fail("Email field cannot be null",400);
+                }
+                var user = await _ManagerService.GetByEmail(Email);
+
+                if(user == null){
+                    return ApiResponse<ManagerDto>.Fail("There is no such a user",404);
+                }
+                var result = ObjectMapper.Mapper.Map<ManagerDto>(user);
+                return ApiResponse<ManagerDto>.Success(result,200);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApiResponse<ManagerDto>.Fail(ex.Message, 500);
+            }
         }
 
         public async Task<ApiResponse<ManagerDto>> GetByIdAsync(Guid Id)

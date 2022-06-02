@@ -36,7 +36,9 @@ namespace Educal.Database.Repositories.ManagerRepositories
 
         public async override Task<IEnumerable<Manager>> GetAll()
         {
-            return await _context.Managers.AsNoTracking().ToListAsync();
+            return await _context.Managers.Where(mng => mng.IsDeleted == false)
+                                          .AsNoTracking()
+                                          .ToListAsync();
         }
 
         public async Task<Manager> GetByEmail(string email)

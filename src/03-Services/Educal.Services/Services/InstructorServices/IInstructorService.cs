@@ -23,5 +23,7 @@ namespace Educal.Services.Services.InstructorServices
         Task<ApiResponse<IEnumerable<InstructorDto>>> GetInstructorsByTimeQuery(GetInstructorByTimeQueryRequest request);
         Task<ApiResponse<InstructorDto>> AddLessonToInstructor(AddLessonRequest request);
         Task<ApiResponse<InstructorDto>> RemoveLessonFromInstructor(DeleteLessonRequest request);
+        Task<ApiResponse<InstructorDto>> GetByEmailAsync(string Email);
+        Task<ApiResponse<List<InstructorDto>>> GetAllAsync();
     }
 }
